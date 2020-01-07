@@ -1,0 +1,25 @@
+{
+    "name": "cvar1984/bizzet",
+    "description": "Auto vistor website",
+    "type": "project",
+    "require": {
+        "league/climate": "^3.5",
+        "php-curl-class/php-curl-class": "^8.6",
+        "campo/random-user-agent": "^1.3",
+        "aalfiann/pubproxy-class-php": "^1.0",
+        "ext-curl": "*"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Cvar1984",
+            "email": "gedzsarjuncomuniti@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Cvar1984\\Bizzet\\": "src/"
+        }
+    }
+}
