@@ -59,10 +59,12 @@ if ($climate->arguments->defined('url')) {
 for ($x = 0; $x < $iterations; $x++) {
     $proxy = $bizzet->getProxy();
     $proxy = json_decode($proxy);
-    $proxy = $proxy->data[0];
+    $proxyType = $proxy->type;
     $proxyIp = $proxy->ip;
     $proxyPort = $proxy->port;
-    // $proxyType = strtoupper($proxy->type);
+    $proxyCountry = $proxy->country;
+    $proxySpeed = $proxy->speed;
+    $proxyLevel= $proxy->proxy_level;
     $userAgent = $campo->random();
     $referer = $bizzet->getReferer();
 
@@ -78,13 +80,16 @@ for ($x = 0; $x < $iterations; $x++) {
     );
     $response = (array)json_decode($bizzet->request($url, $options));
     $climate->boldBorder('#');
-    $climate->green('Error        : ' . $response['errorMessage']);
-    $climate->green('Status       : ' . $response['statusCode']);
-    $climate->green('Proxy Ip     : ' . $response['proxyIp']);
-    $climate->green('Proxy Port   : ' . $response['proxyPort']);
-    $climate->green('Proxy Type   : ' . $response['proxyType']);
-    $climate->green('User Agent   : ' . substr($response['userAgent'], 0, 30));
-    $climate->green('Referer      : ' . $response['referer']);
-    $climate->green('Time Out     : ' . $response['timeOut']);
+    $climate->green('Error         : ' . $response['errorMessage']);
+    $climate->green('Status        : ' . $response['statusCode']);
+    $climate->green('Proxy Ip      : ' . $response['proxyIp']);
+    $climate->green('Proxy Port    : ' . $response['proxyPort']);
+    $climate->green('Proxy Type    : ' . $response['proxyType']);
+    $climate->green('Proxy Speed   : ' . $proxySpeed);
+    $climate->green('Proxy Country : ' . $proxyCountry);
+    $climate->green('Proxy Level   : ' . $proxyLevel);
+    $climate->green('User Agent    : ' . substr($response['userAgent'], 0, 30));
+    $climate->green('Referer       : ' . $response['referer']);
+    $climate->green('Time Out      : ' . $response['timeOut']);
     $climate->boldBorder('#');
 }

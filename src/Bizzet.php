@@ -18,12 +18,15 @@ class Main
     }
     public function getProxy($type = 'socks5', $level = 'elite')
     {
-        return (new \aalfiann\PubProxy())
+        $proxy =  (new \aalfiann\PubProxy())
             ->setLevel($level)
             ->setType($type)
             ->setLimit(1)
             ->make()
             ->getJson();
+        $proxy = json_decode($proxy);
+        $proxy = $proxy->data[0];
+        return json_encode($proxy);
     }
 
     public function getReferer()
@@ -81,7 +84,7 @@ class Main
 
         if ($this->curl->error) {
             return json_encode([
-                'errorMesaage' => $this->curl->errorMessage,
+                'errorMessage' => $this->curl->errorMessage,
                 'statusCode' => $this->curl->getHttpStatusCode(),
                 'proxyIp' => $proxyIp,
                 'proxyPort' => $proxyPort,
@@ -92,7 +95,7 @@ class Main
             ]);
         } else {
             return json_encode([
-                'errorMesaage' => false,
+                'errorMessage' => false,
                 'statusCode' => $this->curl->getHttpStatusCode(),
                 'proxyIp' => $proxyIp,
                 'proxyPort' => $proxyPort,
