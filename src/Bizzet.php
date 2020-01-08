@@ -80,27 +80,27 @@ class Main
         $this->curl->get($url);
 
         if ($this->curl->error) {
-            return array(
+            return json_encode([
                 'errorMesaage' => $this->curl->errorMessage,
                 'statusCode' => $this->curl->getHttpStatusCode(),
                 'proxyIp' => $proxyIp,
                 'proxyPort' => $proxyPort,
-                'proxyTunnel' => $proxyType,
+                'proxyType' => $proxyType,
                 'userAgent' => $userAgent,
                 'referer' => $referer,
                 'timeOut' => $timeOut
-            );
+            ]);
         } else {
-            return array(
+            return json_encode([
                 'errorMesaage' => false,
                 'statusCode' => $this->curl->getHttpStatusCode(),
                 'proxyIp' => $proxyIp,
                 'proxyPort' => $proxyPort,
-                'proxyTunnel' => $proxyType,
+                'proxyType' => $proxyType,
                 'userAgent' => $userAgent,
                 'referer' => $referer,
                 'timeOut' => $timeOut
-            );
+            ]);
         }
     }
 }
