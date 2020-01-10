@@ -5,20 +5,11 @@ class Main
 {
     public function __construct()
     {
-        $this->climate = new \League\CLImate\CLImate();
         $this->curl = new \Curl\Curl();
-        $this->userAgent = new \Campo\UserAgent();
-    }
-    public function showBanner()
-    {
-        $this->climate->clear();
-        $this->climate->addArt('assets');
-        $this->climate->red()->boldDraw('banner');
-        $this->climate->blue()->boldBorder(false, 50);
     }
     public function getProxy($type = 'socks5', $level = 'elite')
     {
-        $proxy =  (new \aalfiann\PubProxy())
+        $proxy = (new \aalfiann\PubProxy())
             ->setLevel($level)
             ->setType($type)
             ->setLimit(1)
@@ -27,6 +18,10 @@ class Main
         $proxy = json_decode($proxy);
         $proxy = $proxy->data[0];
         return json_encode($proxy);
+    }
+    public function getUserAgent()
+    {
+        return (new \Campo\UserAgent())->random();
     }
 
     public function getReferer()
@@ -83,27 +78,31 @@ class Main
         $this->curl->get($url);
 
         if ($this->curl->error) {
-            return json_encode([
-                'errorMessage' => $this->curl->errorMessage,
-                'statusCode' => $this->curl->getHttpStatusCode(),
-                'proxyIp' => $proxyIp,
-                'proxyPort' => $proxyPort,
-                'proxyType' => $proxyType,
-                'userAgent' => $userAgent,
-                'referer' => $referer,
-                'timeOut' => $timeOut
-            ]);
+            return json_encode(
+                [
+                    'errorMessage' => $this->curl->errorMessage,
+                    'statusCode' => $this->curl->getHttpStatusCode(),
+                    'proxyIp' => $proxyIp,
+                    'proxyPort' => $proxyPort,
+                    'proxyType' => $proxyType,
+                    'userAgent' => $userAgent,
+                    'referer' => $referer,
+                    'timeOut' => $timeOut
+                ]
+            );
         } else {
-            return json_encode([
-                'errorMessage' => false,
-                'statusCode' => $this->curl->getHttpStatusCode(),
-                'proxyIp' => $proxyIp,
-                'proxyPort' => $proxyPort,
-                'proxyType' => $proxyType,
-                'userAgent' => $userAgent,
-                'referer' => $referer,
-                'timeOut' => $timeOut
-            ]);
+            return json_encode(
+                [
+                    'errorMessage' => false,
+                    'statusCode' => $this->curl->getHttpStatusCode(),
+                    'proxyIp' => $proxyIp,
+                    'proxyPort' => $proxyPort,
+                    'proxyType' => $proxyType,
+                    'userAgent' => $userAgent,
+                    'referer' => $referer,
+                    'timeOut' => $timeOut
+                ]
+            );
         }
     }
 }

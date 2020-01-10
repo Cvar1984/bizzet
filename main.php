@@ -2,9 +2,13 @@
 require __DIR__ . '/vendor/autoload.php';
 
 $bizzet = new Cvar1984\Bizzet\Main();
-$campo = new Campo\UserAgent();
-$climate = new League\Climate\Climate();
-$bizzet->showBanner();
+$climate = new League\CLImate\CLImate();
+$climate
+    ->addArt('assets')
+    ->red()
+    ->boldDraw('banner')
+    ->blue()
+    ->boldBorder(false, 50);
 
 $climate->arguments->add(
     [
@@ -31,21 +35,30 @@ $climate->arguments->add(
             'prefix' => 't',
             'longPrefix' => 'time-out',
             'description' => 'Number of time out',
+            'castTo' => 'int',
             'defaultValue' => 30
+        ],
+        'proxyLevel' => [
+            'prefix' => 'pl',
+            'longPrefix' => 'proxy-level',
+            'description' => 'Proxy level',
+            'defaultValue' => 'elite'
+        ],
+        'proxyType' => [
+            'prefix' => 'pt',
+            'longPrefix' => 'proxy-type',
+            'description' => 'Proxy type',
+            'defaultValue' => 'socks5'
         ]
     ]
 );
 
 $climate->arguments->parse();
 $iterations = $climate->arguments->get('iterations');
-if ($climate->arguments->defined('timeout')) {
-    if (is_numeric($climate->arguments->get('timeout'))) {
-        $timeout = $climate->arguments->get('timeout');
-    } else {
-        $climate->red('Not an integer');
-        exit(1);
-    }
-}
+$timeout = $climate->arguments->get('timeout');
+$proxyType = $climate->arguments->get('proxyType');
+$proxyTypeString = $proxyType;
+$proxyLevel = $climate->arguments->get('proxyLevel');
 if ($climate->arguments->defined('url')) {
     $url = $climate->arguments->get('url');
 } elseif ($climate->arguments->defined('list')) {
@@ -57,25 +70,41 @@ if ($climate->arguments->defined('url')) {
 }
 
 for ($x = 0; $x < $iterations; $x++) {
-    $proxy = $bizzet->getProxy();
+    $proxy = $bizzet->getProxy($proxyTypeString, $proxyLevel);
     $proxy = json_decode($proxy);
-    $proxyType = $proxy->type;
     $proxyIp = $proxy->ip;
     $proxyPort = $proxy->port;
     $proxyCountry = $proxy->country;
     $proxySpeed = $proxy->speed;
-    $proxyLevel= $proxy->proxy_level;
-    $userAgent = $campo->random();
+    $userAgent = $bizzet->getUserAgent();
     $referer = $bizzet->getReferer();
+    switch ($proxyType) {
+        case 'socks5':
+            $proxyType = CURLPROXY_SOCKS5;
+            break;
+
+        case 'socks4':
+            $proxyType = CURLPROXY_SOCKS4;
+            break;
+
+        case 'http':
+            $proxyType = CURLPROXY_HTTP;
+            break;
+
+        default:
+            $proxyType = CURLPROXY_SOCKS5;
+            break;
+    }
 
     $options = array(
         'userAgent' => $userAgent,
         'referer' => $referer,
-        'timeOut' => 10,
+        'timeOut' => $timeout,
         'proxy' => array(
             'ip' => $proxyIp,
             'port' => $proxyPort,
-            'type' => CURLPROXY_SOCKS5
+            'level' => $proxyLevel,
+            'type' => $proxyType
         )
     );
     $response = (array)json_decode($bizzet->request($url, $options));
@@ -84,11 +113,11 @@ for ($x = 0; $x < $iterations; $x++) {
     $climate->green('Status        : ' . $response['statusCode']);
     $climate->green('Proxy Ip      : ' . $response['proxyIp']);
     $climate->green('Proxy Port    : ' . $response['proxyPort']);
-    $climate->green('Proxy Type    : ' . $response['proxyType']);
+    $climate->green('Proxy Type    : ' . $proxyTypeString);
     $climate->green('Proxy Speed   : ' . $proxySpeed);
     $climate->green('Proxy Country : ' . $proxyCountry);
     $climate->green('Proxy Level   : ' . $proxyLevel);
-    $climate->green('User Agent    : ' . substr($response['userAgent'], 0, 30));
+    $climate->green('User Agent    : ' . $response['userAgent']);
     $climate->green('Referer       : ' . $response['referer']);
     $climate->green('Time Out      : ' . $response['timeOut']);
     $climate->boldBorder('#');
