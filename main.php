@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
 
-$bizzet = new Cvar1984\Bizzet\Main();
+$bizzet = new Cvar1984\Bizzet\Bizzet();
 $climate = new League\CLImate\CLImate();
 $climate
     ->addArt('assets')
@@ -48,14 +48,14 @@ $climate->arguments->add(
             'prefix' => 'pt',
             'longPrefix' => 'proxy-type',
             'description' => 'Proxy type',
-            'defaultValue' => 'socks5'
+            'defaultValue' => 'http'
         ]
     ]
 );
 
 $climate->arguments->parse();
 $iterations = $climate->arguments->get('iterations');
-$timeout = $climate->arguments->get('timeout');
+$timeOut = $climate->arguments->get('timeout');
 $proxyType = $climate->arguments->get('proxyType');
 $proxyTypeString = $proxyType;
 $proxyLevel = $climate->arguments->get('proxyLevel');
@@ -70,36 +70,50 @@ if ($climate->arguments->defined('url')) {
 }
 
 for ($x = 0; $x < $iterations; $x++) {
-    $proxy = $bizzet->getProxy($proxyTypeString, $proxyLevel);
-    $proxy = json_decode($proxy);
+    $proxy = $bizzet->getProxy(
+        [
+            'type' => $proxyTypeString,
+            'level' => $proxyLevel
+        ]
+    );
+
     $proxyIp = $proxy->ip;
     $proxyPort = $proxy->port;
     $proxyCountry = $proxy->country;
     $proxySpeed = $proxy->speed;
     $userAgent = $bizzet->getUserAgent();
     $referer = $bizzet->getReferer();
-    switch ($proxyType) {
-        case 'socks5':
-            $proxyType = CURLPROXY_SOCKS5;
-            break;
 
-        case 'socks4':
-            $proxyType = CURLPROXY_SOCKS4;
-            break;
+    switch ($proxyTypeString) {
+    case 'socks5':
+        $proxyType = CURLPROXY_SOCKS5;
+        break;
 
-        case 'http':
-            $proxyType = CURLPROXY_HTTP;
-            break;
+    case 'socks4':
+        $proxyType = CURLPROXY_SOCKS4;
+        break;
 
-        default:
-            $proxyType = CURLPROXY_SOCKS5;
-            break;
+    case 'http':
+        $proxyType = CURLPROXY_HTTP;
+        break;
+
+    case 'socks4a':
+        $proxyType = CURLPROXY_SOCKS4A;
+        break;
+
+    case 'socks5h':
+        $proxyType = CURLPROXY_SOCKS5_HOSTNAME;
+        break;
+
+    default:
+        $proxyType = CURLPROXY_HTTP;
+        break;
     }
 
     $options = array(
         'userAgent' => $userAgent,
         'referer' => $referer,
-        'timeOut' => $timeout,
+        'timeOut' => $timeOut,
         'proxy' => array(
             'ip' => $proxyIp,
             'port' => $proxyPort,
@@ -107,18 +121,18 @@ for ($x = 0; $x < $iterations; $x++) {
             'type' => $proxyType
         )
     );
-    $response = (array)json_decode($bizzet->request($url, $options));
+    $response = $bizzet->request($url, $options);
     $climate->boldBorder('#');
     $climate->green('Error         : ' . $response['errorMessage']);
     $climate->green('Status        : ' . $response['statusCode']);
-    $climate->green('Proxy Ip      : ' . $response['proxyIp']);
-    $climate->green('Proxy Port    : ' . $response['proxyPort']);
+    $climate->green('Proxy Ip      : ' . $proxyIp);
+    $climate->green('Proxy Port    : ' . $proxyPort);
     $climate->green('Proxy Type    : ' . $proxyTypeString);
     $climate->green('Proxy Speed   : ' . $proxySpeed);
     $climate->green('Proxy Country : ' . $proxyCountry);
     $climate->green('Proxy Level   : ' . $proxyLevel);
-    $climate->green('User Agent    : ' . $response['userAgent']);
-    $climate->green('Referer       : ' . $response['referer']);
-    $climate->green('Time Out      : ' . $response['timeOut']);
+    $climate->green('User Agent    : ' . $userAgent);
+    $climate->green('Referer       : ' . $referer);
+    $climate->green('Time Out      : ' . $timeOut);
     $climate->boldBorder('#');
 }

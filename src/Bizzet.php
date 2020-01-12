@@ -1,14 +1,30 @@
 <?php
 namespace Cvar1984\Bizzet;
 
-class Main
+interface BizzetInterface
 {
+    public function __construct();
+    public function __destruct();
+    public function getUserAgent();
+    public function getReferer();
+    public function getProxy(array $options);
+    public function request(string $url, array $options);
+}
+
+class Bizzet implements BizzetInterface
+{
+    private $curl;
     public function __construct()
     {
         $this->curl = new \Curl\Curl();
     }
-    public function getProxy($type = 'socks5', $level = 'elite')
+    public function __destruct() {
+        // do something
+    }
+    public function getProxy($options)
     {
+        $type = $options['type'];
+        $level = $options['level'];
         $proxy = (new \aalfiann\PubProxy())
             ->setLevel($level)
             ->setType($type)
@@ -17,7 +33,7 @@ class Main
             ->getJson();
         $proxy = json_decode($proxy);
         $proxy = $proxy->data[0];
-        return json_encode($proxy);
+        return $proxy;
     }
     public function getUserAgent()
     {
@@ -60,7 +76,7 @@ class Main
         $acak = array_rand($list, 1);
         return $list[$acak];
     }
-    public function request(string $url, array $option)
+    public function request($url, $option)
     {
         $userAgent = $option['userAgent'];
         $referer = $option['referer'];
@@ -72,37 +88,22 @@ class Main
         $this->curl->setUserAgent($userAgent);
         $this->curl->setReferrer($referer);
         $this->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $this->curl->setOpt(CURLOPT_SSL_VERIFYPEER, false);
         $this->curl->setProxy($proxyIp, $proxyPort);
         $this->curl->setProxyType($proxyType);
         $this->curl->setConnectTimeout($timeOut);
         $this->curl->get($url);
 
         if ($this->curl->error) {
-            return json_encode(
-                [
-                    'errorMessage' => $this->curl->errorMessage,
-                    'statusCode' => $this->curl->getHttpStatusCode(),
-                    'proxyIp' => $proxyIp,
-                    'proxyPort' => $proxyPort,
-                    'proxyType' => $proxyType,
-                    'userAgent' => $userAgent,
-                    'referer' => $referer,
-                    'timeOut' => $timeOut
-                ]
-            );
+            return [
+                'errorMessage' => $this->curl->errorMessage,
+                'statusCode' => $this->curl->getHttpStatusCode()
+            ];
         } else {
-            return json_encode(
-                [
-                    'errorMessage' => false,
-                    'statusCode' => $this->curl->getHttpStatusCode(),
-                    'proxyIp' => $proxyIp,
-                    'proxyPort' => $proxyPort,
-                    'proxyType' => $proxyType,
-                    'userAgent' => $userAgent,
-                    'referer' => $referer,
-                    'timeOut' => $timeOut
-                ]
-            );
+            return [
+                'errorMessage' => false,
+                'statusCode' => $this->curl->getHttpStatusCode()
+            ];
         }
     }
 }
