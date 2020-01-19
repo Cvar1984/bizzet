@@ -1,7 +1,15 @@
 <?php
+/**
+ * File: main.php
+ * @author: Cvar1984 <gedzsarjuncomuniti@gmail.com>
+ * Date: 19.01.2020
+ * Last Modified Date: 19.01.2020
+ * Last Modified By: Cvar1984 <gedzsarjuncomuniti@gmail.com>
+ */
 require __DIR__ . '/vendor/autoload.php';
+use Cvar1984\Bizzet\BizzetFactory as Factory;
 
-$bizzet = new Cvar1984\Bizzet\Bizzet();
+$bizzet = Factory::create(new Cvar1984\Bizzet\BizzetLocalProxy());
 $climate = new League\CLImate\CLImate();
 $climate
     ->addArt('assets')
@@ -77,6 +85,7 @@ for ($x = 0; $x < $iterations; $x++) {
         ]
     );
 
+    $proxy = (object)$proxy;
     $proxyIp = $proxy->ip;
     $proxyPort = $proxy->port;
     $proxyCountry = $proxy->country;
